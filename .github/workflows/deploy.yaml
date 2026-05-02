@@ -28,3 +28,19 @@ jobs:
       run: |
         .venv/bin/pip install pytest httpx
         .venv/bin/pytest tests/
+
+    - name: Harbor einloggen
+      if: github.ref == 'refs/heads/production'
+      run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.j-becker.org -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
+
+    - name: Docker Image bauen
+      if: github.ref == 'refs/heads/production'
+      run: |
+        docker build -t harbor.j-becker.org/mein-projekt/meine-app:latest \
+                     -t harbor.j-becker.org/mein-projekt/meine-app:${{ github.sha }} .
+
+    - name: Image pushen
+      if: github.ref == 'refs/heads/production'
+      run: |
+        docker push harbor.j-becker.org/mein-projekt/meine-app:latest
+        docker push harbor.j-becker.org/mein-projekt/meine-app:${{ github.sha }}
