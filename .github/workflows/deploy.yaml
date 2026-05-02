@@ -31,7 +31,10 @@ jobs:
 
     - name: Harbor einloggen
       if: github.ref == 'refs/heads/production'
-      run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.j-becker.org -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
+      env:
+        HARBOR_USER: ${{ secrets.HARBOR_USERNAME }}
+        HARBOR_PASS: ${{ secrets.HARBOR_PASSWORD }}
+      run: echo "$HARBOR_PASS" | docker login harbor.j-becker.org -u "$HARBOR_USER" --password-stdin
 
     - name: Docker Image bauen
       if: github.ref == 'refs/heads/production'
